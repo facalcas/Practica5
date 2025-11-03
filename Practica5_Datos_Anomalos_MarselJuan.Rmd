@@ -77,7 +77,13 @@ Inspecciona visualmente los valores del conjunto de datos (`View`) y ordena de m
 
 ```{r Solucion ejercicio 1, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
 # Medidas con valores faltantes, longitudes negativas y cero
-
+View(dirty_iris)
+dirty_iris%>%
+  arrange(-desc(Petal.Width))
+#Hay dos valores sumamente grandes (73 y 49) de Sepal.Lenght en comparación al resto de valores. Y de esta variable también un registro de 0.
+#Lo mismo pasa con Sepal.Width dos valores más grandes que el resto (30 y 29), y esta variable tiene un registro negativo y otro de 0.
+#Petal.Lenght tiene 3 decimales, a diferencia de las otras variables, y 3 valores más grandes que el resto (63, 23 y 14), además de 3 registros de 0 o muy cercanos.
+#Petal.Width tiene un valor de Infinito positivo, y valores también muy cerca de 0. 
 ```
 
 ## Ejercicio 2: Valores especiales
@@ -98,7 +104,15 @@ Nota: Puedes reemplazar los valores para cada variable del dataframe usando `mut
 
 ```{r Solucion ejercicio 2, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
 # DEBEMOS ELIMINAR TAMBIEN LOS VALROES IGUALES A CERO YA QUE SE TRATA DE LONGITUDES DE PARTES DE UNA FLOR. NO PUEDEN SER O
-
+dirty_iris%>%
+  mutate(Sepal.Length=ifelse(is.finite(dirty_iris$Sepal.Length),yes=dirty_iris$Sepal.Length,no=NA))%>%
+  mutate(Sepal.Length=ifelse(dirty_iris$Sepal.Length<=0,yes=NA,no=dirty_iris$Sepal.Length))%>%
+  mutate(Sepal.Width=ifelse(is.finite(dirty_iris$Sepal.Width),yes = dirty_iris$Sepal.Width,no=NA))%>%
+  mutate(Sepal.Width=ifelse(dirty_iris$Sepal.Width<=0,yes=NA,no=dirty_iris$Sepal.Width))%>%
+  mutate(Petal.Length=ifelse(is.finite(dirty_iris$Petal.Length),yes=dirty_iris$Petal.Length,no=NA))%>%
+  mutate(Petal.Length=ifelse(dirty_iris$Petal.Length<=0,yes=NA,no=dirty_iris$Petal.Length))%>%
+  mutate(Petal.Width=ifelse(is.finite(dirty_iris$Petal.Width),yes=dirty_iris$Petal.Width,no=NA))%>%
+  mutate(Petal.Width=ifelse(dirty_iris$Petal.Width<=0,yes=NA,no=dirty_iris$Petal.Width))
 
 ```
 
@@ -109,7 +123,18 @@ Nota: Puedes reemplazar los valores para cada variable del dataframe usando `mut
   * Emplea después la función `na.omit` para quedarnos solo con las filas con datos completos en un nuevo data frame `clean_iris`.
 
 ```{r Solucion ejercicio 3, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
+Obs_Compl_SepLen<-sum(complete.cases(dirty_iris$Sepal.Length))
+Porcentaje_Obs_Compl_SepLen<-Obs_Compl_SepLen/length(dirty_iris$Sepal.Length)
+Obs_Compl_SepWid<-sum(complete.cases(dirty_iris$Sepal.Width))
+Porcentaje_Obs_Compl_SepWid<-Obs_Compl_SepWid/length(dirty_iris$Sepal.Width)
+Obs_Compl_PetLen<-sum(complete.cases(dirty_iris$Petal.Length))
+Porcentaje_Obs_Compl_PetLen<-Obs_Compl_PetLen/length(dirty_iris$Petal.Length)
+Obs_Compl_PetWid<-sum(complete.cases(dirty_iris$Petal.Width))
+Porcentaje_Obs_Compl_PetWid<-Obs_Compl_PetWid/length(dirty_iris$Petal.Width)
 
+clean_iris<-dirty_iris%>%
+  na.omit()
+clean_iris
 ```
 
 # Detección de outliers univariante
