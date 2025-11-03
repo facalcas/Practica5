@@ -104,7 +104,7 @@ Nota: Puedes reemplazar los valores para cada variable del dataframe usando `mut
 
 ```{r Solucion ejercicio 2, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
 # DEBEMOS ELIMINAR TAMBIEN LOS VALROES IGUALES A CERO YA QUE SE TRATA DE LONGITUDES DE PARTES DE UNA FLOR. NO PUEDEN SER O
-dirty_iris%>%
+dirty_iris<-dirty_iris%>%
   mutate(Sepal.Length=ifelse(is.finite(dirty_iris$Sepal.Length),yes=dirty_iris$Sepal.Length,no=NA))%>%
   mutate(Sepal.Length=ifelse(dirty_iris$Sepal.Length<=0,yes=NA,no=dirty_iris$Sepal.Length))%>%
   mutate(Sepal.Width=ifelse(is.finite(dirty_iris$Sepal.Width),yes = dirty_iris$Sepal.Width,no=NA))%>%
@@ -235,7 +235,7 @@ Utiliza la función `mutate` y `across` para identificar los outliers en la vari
 Nota: podría extenderse la aplicación a todas las variables numéricas usando también `mutate`, `across` y `where`. 
 
 ```{r Solucion ejercicio 6, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
-clean_iris%>%
+clean_iris<-clean_iris%>%
   mutate(tressigmaPetalLength=regla3sigma(Petal.Length))%>%
   mutate(hampelPetalLength=identi_hampel(Petal.Length))%>%
   mutate(boxplotPetalLength=regla_boxplot(Petal.Length))%>%
@@ -250,7 +250,13 @@ En los métodos de detección de outliers analizados, examina los resultados com
   * Los valores etiquetados como outliers (ordenados de menor a mayor).
 
 ```{r Solucion ejercicio 7, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
+clean_iris%>%
+  summarise(across(c(tressigmaPetalLength,hampelPetalLength,boxplotPetalLength,percentilesPetalLength),sum))
 
+clean_iris%>%
+  filter(tressigmaPetalLength==T|hampelPetalLength==T|boxplotPetalLength==T|percentilesPetalLength==T)%>%
+  arrange(Petal.Length)%>%
+  select(-Sepal.Length,-Sepal.Width,-Petal.Width)
 ```
 
 ## Ejercicio 8: Representación gráfica
