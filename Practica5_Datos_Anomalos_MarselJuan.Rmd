@@ -155,7 +155,19 @@ Hazlo para el data frame con observaciones completas `clean_iris` (que no tiene 
   * Compara los resultados para los dos conjuntos en la variable `Petal.Length`.
 
 ```{r , include = TRUE}
+clean_iris%>%
+  summarise(Media=mean(Petal.Length),
+            DesvEst=sd(Petal.Length),
+            Mediana=median(Petal.Length),
+            IQR=IQR(Petal.Length),
+            MADM=mad(Petal.Length))
 
+dirty_iris%>%
+  summarise(Media=mean(Petal.Length,na.rm=T),
+            DesvEst=sd(Petal.Length,na.rm=T),
+            Mediana=median(Petal.Length,na.rm=T),
+            IQR=IQR(Petal.Length,na.rm=T),
+            MADM=mad(Petal.Length,na.rm=T))  
 ```
 
 
@@ -173,17 +185,47 @@ Escribe una función que detecte los outliers de un vector $x$ para cada uno de 
 
 ```{r , include = FALSE}
 # Regla 3 sigma
-
+regla3sigma<- function(x){
+  media<-mean(x,na.rm=T)
+  desvstd<-sd(x,na.rm=T)
+  upLim<-media+3*desvstd
+  lowLim<-media-3*desvstd
+  
+  outlier_3sigma<-ifelse(is.na(x),NA,x<lowLim|x>upLim)
+  return(outlier_3sigma)
+}
 
 # Identificador Hampel
-
-
+identi_hampel<- function(x,k=3){
+  mediana<-median(x,na.rm = T)
+  mad_h<-mad(x,constant=1.4826,na.rm = T)
+  
+  outlier_hampel<-ifelse(is.na(x),NA,abs(x-mediana)/mad_h > k)
+  return(outlier_hampel)
+}
 
 # Regla boxplot
-
+regla_boxplot<-function(x,k=1.5){
+  Q1<-quantile(x,0.25,na.rm=T)
+  Q3<-quantile(x,0.75,na.rm=T)
+  IQR_val<-IQR(x,na.rm=T)
+  
+  lowLim<-Q1-k*IQR_val
+  upLim<-Q3+k*IQR_val
+  
+  outlier_boxplot<-ifelse(is.na(x),NA,x<lowLim|x>upLim)
+  return(outlier_boxplot)
+}
+regla_boxplot(clean_iris$Sepal.Length)
 
 # Percentiles
-
+regla_percentiles<-function(x,p_low=0.05,p_high=0.95){
+  q_low<-quantile(x,p_low,na.rm=T)
+  q_high<-quantile(x,p_high,na.rm=T)
+  
+  outlier_percentiles<-ifelse(is.na(x),NA,x<q_low|x>q_high)
+  return(outlier_percentiles)
+}
 ```
 
 
@@ -193,9 +235,11 @@ Utiliza la función `mutate` y `across` para identificar los outliers en la vari
 Nota: podría extenderse la aplicación a todas las variables numéricas usando también `mutate`, `across` y `where`. 
 
 ```{r Solucion ejercicio 6, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
-
-
-
+clean_iris%>%
+  mutate(tressigmaPetalLength=regla3sigma(Petal.Length))%>%
+  mutate(hampelPetalLength=identi_hampel(Petal.Length))%>%
+  mutate(boxplotPetalLength=regla_boxplot(Petal.Length))%>%
+  mutate(percentilesPetalLength=regla_percentiles(Petal.Length))
 ```
 
 ## Ejercicio 7: Comparativa de los métodos de detección de outliers
