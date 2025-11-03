@@ -256,7 +256,7 @@ clean_iris%>%
 clean_iris%>%
   filter(tressigmaPetalLength==T|hampelPetalLength==T|boxplotPetalLength==T|percentilesPetalLength==T)%>%
   arrange(Petal.Length)%>%
-  select(-Sepal.Length,-Sepal.Width,-Petal.Width)
+  select(-Sepal.Length,-Sepal.Width,-Petal.Width,-Species)
 ```
 
 ## Ejercicio 8: Representación gráfica
